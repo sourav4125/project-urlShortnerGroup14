@@ -1,7 +1,7 @@
 const urlModel = require("../models/urlModel.js")
 const validator = require("validator")
 const shortId = require("shortid")
-const { SET_ASYNC, GET_ASYNC } = require("../routes/cache")
+const { SETEX_ASYNC, GET_ASYNC } = require("../routes/cache")
 
 const createUrl = async function(req, res) {
     try {
@@ -23,7 +23,7 @@ const createUrl = async function(req, res) {
             })
         let urlExist = await urlModel.findOne({ longUrl }).select({ longUrl: 1, urlCode: 1, shortUrl: 1, _id: 0 })
         if (urlExist) {
-            await SET_ASYNC(`${longUrl}`, JSON.stringify(urlExist))
+            await SETEX_ASYNC(`${longUrl}`, 86400, JSON.stringify(urlExist))
             return res.status(200).send({
                 status: true,
                 message: "Url already shortend",
