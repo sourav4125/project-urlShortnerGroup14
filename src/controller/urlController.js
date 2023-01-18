@@ -55,7 +55,7 @@ const getUrl = async function(req, res) {
         const getPage = await urlModel.findOne({ urlCode: urlCode })
         if (getPage) {
             console.log("DB call")
-            await SET_ASYNC(`${urlCode}`, JSON.stringify(getPage))
+            await SETEX_ASYNC(`${urlCode}`, 86400, JSON.stringify(getPage))
             return res.status(302).redirect(getPage.longUrl)
         }
         return res.status(404).send({ status: false, message: "Urlcode does not exist " })
