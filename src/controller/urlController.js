@@ -40,11 +40,15 @@ const getUrl = async function (req,res){
     try{
         let reqUrl = req.params.urlCode.trim();
         let cacheUrl= await GET_ASYNC(`${reqUrl}`)
-        if(cacheUrl) return res.status(302).redirect(cacheUrl.longUrl)
+        if(cacheUrl){
+            cacheUrl = JSON.parse(cacheUrl)
+             return res.status(302).redirect(cacheUrl.longUrl)
+        }
         
         const url = await urlModel.findOne({urlCode: reqUrl});
         
         if(!url) return res.status(404).send({status:true, message:"The URL is not found."});
+        await SET_ASYNC (`${reqUrl}`,JSON.stringify(url))
          return res.status(302).redirect(url.longUrl)
     }
     catch(err){
