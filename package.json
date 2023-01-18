@@ -1,0 +1,33 @@
+{
+  "name": "project-3",
+  "version": "1.0.0",
+  "description": "UrlShortner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abhi5969/project-3-urlshortner.git"
+  },
+  "author": "Abhinandan Maity",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Abhi5969/project-3-urlshortner/issues"
+  },
+  "homepage": "https://github.com/Abhi5969/project-3-urlshortner#readme",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.4.4",
+    "nodemon": "^2.0.19",
+    "redis": "^3.1.2",
+    "shortid": "^2.2.16",
+    "util": "^0.12.5",
+    "valid-url": "^1.0.9",
+    "validator": "^13.7.0"
+  }
+}
