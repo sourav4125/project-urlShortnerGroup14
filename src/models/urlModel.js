@@ -9,9 +9,9 @@ const urlSchema = new mongoose.Schema({
     },
     shortUrl: {
         type: String,
+        lowercase: true,
         required: true,
         unique: true,
-        lowercase: true,
         trim: true
     },
 

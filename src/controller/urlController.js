@@ -1,7 +1,30 @@
 const urlModel = require("../models/urlModel.js")
 const validator = require("validator")
 const shortId = require("shortid")
-const { SETEX_ASYNC, GET_ASYNC } = require("../routes/cache")
+const redis = require("redis");
+const { promisify } = require("util");
+
+
+//1. Connect to the redis server
+const redisClient = redis.createClient(
+    12303,
+    "redis-12303.c305.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
+
+redisClient.auth("T0Z9CXqETT5xITyCKQhALVb4oS6YUM3s", function(err) {
+    if (err) throw err;
+});
+redisClient.on("connect", async function() {
+    console.log("Connected to RedisDB");
+});
+
+
+//set and get functions of redis
+const SETEX_ASYNC = promisify(redisClient.SETEX).bind(redisClient); //to store data in cache memory.
+const GET_ASYNC = promisify(redisClient.GET).bind(redisClient); //to get data from cache memory.
+
+
+
+//---------------------------------------------------POST API---------------------------------------------
 
 const createUrl = async function(req, res) {
     try {
@@ -33,6 +56,7 @@ const createUrl = async function(req, res) {
         let urlCode = shortId.generate()
         let shortUrl = `${req.protocol}://${req.headers.host}/` + urlCode;
         let result = { longUrl: longUrl, shortUrl: shortUrl, urlCode: urlCode }
+        shortUrl.toLowerCase, urlCode.toLowerCase
         await urlModel.create(result)
         return res.status(201).send({ status: true, data: result })
 
@@ -41,6 +65,8 @@ const createUrl = async function(req, res) {
     }
 }
 
+
+//----------------------------------------------GET API-----------------------------------------------
 
 const getUrl = async function(req, res) {
     try {
@@ -64,4 +90,6 @@ const getUrl = async function(req, res) {
         res.status(500).send({ errorType: err.name, message: err.message })
     }
 }
+
+
 module.exports = { createUrl, getUrl }
