@@ -1,21 +1,27 @@
 const urlModel = require("../models/urlModel.js")
-const validator = require("validator")
 const shortId = require("shortid")
 const redis = require("redis");
 const { promisify } = require("util");
+const axios = require("axios")
 
 
 //1. Connect to the redis server
-const redisClient = redis.createClient(
-    12303,
-    "redis-12303.c305.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
+const redisClient = redis.createClient({
+    url: "redis://default:T0Z9CXqETT5xITyCKQhALVb4oS6YUM3s@redis-12303.c305.ap-south-1-1.ec2.cloud.redislabs.com:12303"
+})
+redisClient.on('error', (err) => console.log('Redis Client Error', err))
+console.log("Connected to Redis..")
 
-redisClient.auth("T0Z9CXqETT5xITyCKQhALVb4oS6YUM3s", function(err) {
-    if (err) throw err;
-});
-redisClient.on("connect", async function() {
-    console.log("Connected to RedisDB");
-});
+// const redisClient = redis.createClient(
+//     12303,
+//     "redis-12303.c305.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
+
+// redisClient.auth("T0Z9CXqETT5xITyCKQhALVb4oS6YUM3s", function(err) {
+//     if (err) throw err;
+// });
+// redisClient.on("connect", async function() {
+//     console.log("Connected to RedisDB");
+// });
 
 
 //set and get functions of redis
@@ -35,7 +41,6 @@ const createUrl = async function(req, res) {
 
         if (!longUrl.trim()) return res.status(400).send({ status: false, message: "please enter url first" })
 
-        if (!validator.isURL(longUrl)) return res.status(400).send({ status: false, message: "enter valid Url" })
         let urlData = await GET_ASYNC(`${longUrl}`)
         let url = JSON.parse(urlData)
         if (url)
@@ -44,6 +49,14 @@ const createUrl = async function(req, res) {
                 message: "URL already shorten come from cache",
                 data: url
             })
+
+        let urlFound = await axios.get(longUrl)
+            .then((res) => longUrl)
+            .catch((err) => {});
+        if (!urlFound) return res.status(400).send({ status: false, message: "Invalid Url" })
+
+
+
         let urlExist = await urlModel.findOne({ longUrl }).select({ longUrl: 1, urlCode: 1, shortUrl: 1, _id: 0 })
         if (urlExist) {
             await SETEX_ASYNC(`${longUrl}`, 86400, JSON.stringify(urlExist))
@@ -58,6 +71,7 @@ const createUrl = async function(req, res) {
         let result = { longUrl: longUrl, shortUrl: shortUrl, urlCode: urlCode }
         shortUrl.toLowerCase, urlCode.toLowerCase
         await urlModel.create(result)
+
         return res.status(201).send({ status: true, data: result })
 
     } catch (err) {
