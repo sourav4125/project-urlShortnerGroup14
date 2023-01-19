@@ -12,17 +12,6 @@ const redisClient = redis.createClient({
 redisClient.on('error', (err) => console.log('Redis Client Error', err))
 console.log("Connected to Redis..")
 
-// const redisClient = redis.createClient(
-//     12303,
-//     "redis-12303.c305.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
-
-// redisClient.auth("T0Z9CXqETT5xITyCKQhALVb4oS6YUM3s", function(err) {
-//     if (err) throw err;
-// });
-// redisClient.on("connect", async function() {
-//     console.log("Connected to RedisDB");
-// });
-
 
 //set and get functions of redis
 const SETEX_ASYNC = promisify(redisClient.SETEX).bind(redisClient); //to store data in cache memory.
@@ -51,7 +40,7 @@ const createUrl = async function(req, res) {
             })
 
         let urlFound = await axios.get(longUrl)
-            .then((res) => longUrl)
+            .then(() => longUrl)
             .catch((err) => {});
         if (!urlFound) return res.status(400).send({ status: false, message: "Invalid Url" })
 
@@ -69,7 +58,6 @@ const createUrl = async function(req, res) {
         let urlCode = shortId.generate()
         let shortUrl = `${req.protocol}://${req.headers.host}/` + urlCode;
         let result = { longUrl: longUrl, shortUrl: shortUrl, urlCode: urlCode }
-        shortUrl.toLowerCase, urlCode.toLowerCase
         await urlModel.create(result)
 
         return res.status(201).send({ status: true, data: result })
