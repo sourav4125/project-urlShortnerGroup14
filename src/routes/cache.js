@@ -15,7 +15,7 @@ const redisClient = redis.createClient(
   }); 
 
   //set and get functions of redis
-  const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);//to create data in cache memory.
+  const SET_ASYNC = promisify(redisClient.SETEX).bind(redisClient);//to create data in cache memory.
   const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);//to get data from cache memory.
 
   module.exports ={redisClient,SET_ASYNC,GET_ASYNC}
